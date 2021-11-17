@@ -37,7 +37,7 @@ def first_and_second_shell_cordination_num(wr,shifted_box,conf,dist1=1.44,dist2=
     b2=wr[conf]>shifted_box[conf,:,1]
     assert not(b1.any() or b2.any()),'coordinates must be wrapped at boundaries'
 
-    tree=KDTree(wr[conf],boxsize=sbox[conf,:,1])
+    tree=KDTree(wr[conf],boxsize=shifted_box[conf,:,1])
 
     n1=[]
     n2=[]

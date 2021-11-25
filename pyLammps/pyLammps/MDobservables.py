@@ -83,7 +83,7 @@ def per_atom_steinhardt_OP(box, r, t, l, rmax):
     return ql.particle_order
 
 
-def displacement_analysis(r):
+def displacement_analysis(r,t,compute_u2=False):
     nc = r.shape[0]
     npa = r.shape[1]
     displ = []
@@ -91,12 +91,19 @@ def displacement_analysis(r):
         temp = np.linalg.norm((r[conf] - r[0]), axis=1)
         displ.append(
             [
+                t[conf],
                 np.mean(temp),
                 np.mean(temp ** 2),
                 0.6 * np.mean(temp ** 4) / np.mean(temp ** 2) ** 2 - 1,
             ]
         )
-    return np.array(displ)
+    displ=np.array(displ)
+    if compute_u2:
+        msd_f=interp1d(displ[:,0],displ[:,2])
+        u2=msd_f(1.0)
+        return displ,u2
+    else:
+        return displ
 
 
 # Intermediate scattering function

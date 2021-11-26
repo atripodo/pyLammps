@@ -16,18 +16,11 @@ def polygon_area(poly):
     return sum(area)
 
 
-def voro_analysis(wr0, shiftbox0):
-    assert (
-        len(wr0.shape) == 2
-    ), "function voro_analysis needs a sigle snapshot wrapped at boundaries"
-    npa = wr0.shape[0]
-    voro_tessellation = pyvoro.compute_voronoi(
-        wr0, shiftbox0, 1.26, periodic=[True] * 3
-    )
-    volumes = [voro_tes[jj]["volume"] for jj in range(npa)]
-    surfaces = [
-        ConvexHull(np.array(voro_tessellation[jj]["vertices"])).area
-        for jj in range(npa)
-    ]
-    asphericity = np.power(surfaces, 3) / (np.power(volumes, 2) * 36 * np.pi) - 1
+def voro_analysis(wr0,shiftbox0):
+    assert len(wr0.shape)==2, 'function voro_analysis needs a sigle snapshot wrapped at boundaries'
+    npa=wr0.shape[0]
+    voro_tessellation=pyvoro.compute_voronoi(wr0,shiftbox0,1.26,periodic=[True]*3)
+    volumes=[voro_tessellation[jj]['volume'] for jj in range(npa)]
+    surfaces=[ConvexHull(np.array(voro_tessellation[jj]['vertices'])).area for jj in range(npa)]
+    asphericity=np.power(surfaces,3)/(np.power(volumes,2)*36*np.pi)-1
     return np.array(volumes), np.array(surfaces), asphericity

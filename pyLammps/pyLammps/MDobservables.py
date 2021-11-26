@@ -3,6 +3,7 @@ from scipy import spatial
 from pyLammps.box_manipulations import *
 import pyLammps.pars
 from scipy.spatial import KDTree
+from scipy.interpolate import interp1d
 import random
 import freud
 
@@ -82,28 +83,18 @@ def per_atom_steinhardt_OP(box, r, t, l, rmax):
     ql.compute((box, r[0]), {"r_max": rmax})
     return ql.particle_order
 
-
-def displacement_analysis(r,t,compute_u2=False):
+def displacement_analysis(r,t,compute_u2=True):
     nc = r.shape[0]
     npa = r.shape[1]
-    displ = []
-    for conf in range(1, nc):
-        temp = np.linalg.norm((r[conf] - r[0]), axis=1)
-        displ.append(
-            [
-                t[conf],
-                np.mean(temp),
-                np.mean(temp ** 2),
-                0.6 * np.mean(temp ** 4) / np.mean(temp ** 2) ** 2 - 1,
-            ]
-        )
-    displ=np.array(displ)
+
+    dr=r-r[0]
+    dr2=np.linalg.norm(dr,axis=-1)**2
+    
     if compute_u2:
-        msd_f=interp1d(displ[:,0],displ[:,2])
-        u2=msd_f(1.0)
-        return displ,u2
+        u2=np.array([interp1d(t,dr2[:,i])(1) for i in range(npa)])
+        return np.mean(dr2,axis=1),u2
     else:
-        return displ
+        return np.mean(dr2,axis=1)
 
 
 # Intermediate scattering function

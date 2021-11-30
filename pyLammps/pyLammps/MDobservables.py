@@ -5,6 +5,7 @@ import pyLammps.pars
 from scipy.spatial import KDTree,ConvexHull
 from scipy.interpolate import interp1d
 import random
+import freud
 from freud import box,order,locality
 
 # ----------------------------------------------------------------------------------------

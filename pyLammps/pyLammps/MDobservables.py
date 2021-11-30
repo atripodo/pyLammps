@@ -2,10 +2,10 @@ import numpy as np
 from scipy import spatial
 from pyLammps.box_manipulations import *
 import pyLammps.pars
-from scipy.spatial import KDTree
+from scipy.spatial import KDTree,ConvexHull
 from scipy.interpolate import interp1d
 import random
-import freud
+from freud import box,order,locality
 
 # ----------------------------------------------------------------------------------------
 # wr    coordinate wrapped
@@ -75,6 +75,21 @@ def radial_distrib_func(wr, shifted_box, sample_size, dr=0.1):
         gr_tot.append(neighb[1:] / norm[1:])
     gr_tot = np.array(gr_tot)
     return bins[1:], np.mean(gr_tot, axis=0)
+
+def voro_analysis(wr,shiftbox,t):
+    wr0=wr[t]
+    npa=wr0.shape[0]
+    
+    box = freud.box.Box.from_box(shiftbox[t, :, 1] - shiftbox[t, :, 0])
+    voro = freud.locality.Voronoi()
+    cells = voro.compute((box, wr0)).polytopes
+
+    
+    volumes=voro.volumes
+    surfaces=[ConvexHull(np.array(cells[jj])).area for jj in range(npa)]
+    asphericity=np.power(surfaces,3)/(np.power(volumes,2)*36*np.pi)-1
+
+    return np.array(volumes), np.array(surfaces), asphericity
 
 
 def per_atom_steinhardt_OP(box, r, t, l, rmax):

@@ -192,13 +192,19 @@ def compute_local_elastic_modulus(r, stress, box, n_div, T):
 
     C = C_B_m - C_N_m
 
+    #modulo di bulk
+    K = np.copy(C[:, 0, 0, 0, 0]+C[:, 1, 1, 1, 1]+C[:, 2, 2, 2, 2]+
+        +C[:, 0, 0, 1, 1]+C[:, 1, 1, 0, 0]+C[:, 0, 0, 2, 2]+C[:, 2, 2, 0, 0]+
+        +C[:, 1, 1, 2, 2]+C[:, 2, 2, 1, 1]
+        )/9
+
     # moduli di taglio
     G3 = np.copy(C[:, 0, 1, 0, 1]) / 2
     G4 = np.copy(C[:, 0, 2, 0, 2]) / 2
     G5 = np.copy(C[:, 1, 2, 1, 2]) / 2
-    shear = (G3 + G4 + G3) / 3
+    #
 
     pos0 = [where_is(wr[0, i], boxes, W) for i in range(npa)]
-    local_em = [shear[i] for i in pos0]
+    local_em = [[K[i],G3[i],G4[i],G5[i]] for i in pos0]
 
     return C, local_em
